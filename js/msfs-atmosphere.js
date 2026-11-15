@@ -47,32 +47,60 @@
         'uniform float uTime;',
         'varying vec3 vDir;',
         'float hash3(vec3 p){ p=fract(p*0.3183099+.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }',
+        'float vnoise2(vec2 p){',
+        '  vec2 i=floor(p), f=fract(p);',
+        '  vec2 u=f*f*(3.0-2.0*f);',
+        '  float a=fract(sin(dot(i,vec2(127.1,311.7)))*43758.5453);',
+        '  float b=fract(sin(dot(i+vec2(1.0,0.0),vec2(127.1,311.7)))*43758.5453);',
+        '  float c=fract(sin(dot(i+vec2(0.0,1.0),vec2(127.1,311.7)))*43758.5453);',
+        '  float d=fract(sin(dot(i+vec2(1.0,1.0),vec2(127.1,311.7)))*43758.5453);',
+        '  return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);',
+        '}',
+        'float fbmSky(vec2 p){',
+        '  float s=0.0, a=0.5;',
+        '  for(int i=0;i<4;i++){ s+=a*vnoise2(p); p=p*2.03+vec2(1.7,9.2); a*=0.5; }',
+        '  return s;',
+        '}',
         'void main(){',
         '  vec3 d = normalize(vDir);',
-        '  float h = clamp(d.y, 0.0, 1.0);',
-        '  vec3 col = mix(uHorizon, uZenith, pow(h, 0.52));',
-        '  if(d.y < 0.0) col = uHorizon * 0.72;',
-        '  float sunDot = max(dot(d, normalize(uSunDir)), 0.0);',
-        '  // Mie solar glow & crisp solar disc',
-        '  float mie = pow(sunDot, 12.0) * (0.45 - 0.3 * uCloud);',
-        '  float disc = smoothstep(0.9992, 0.99975, sunDot) * (1.0 - uCloud * 0.85);',
-        '  vec3 sunTint = mix(vec3(1.0, 0.56, 0.22), vec3(1.0, 0.97, 0.88), clamp(uSunDir.y * 2.2, 0.0, 1.0));',
-        '  col += sunTint * (mie + disc * 2.8) * (1.0 - uNight * 0.92);',
+        '  float h = clamp(d.y, 0.0001, 1.0);',
+        '  // Multi-stage Rayleigh scattering gradient (horizon haze -> cobalt zenith)',
+        '  vec3 col = mix(uHorizon, uZenith, pow(h, 0.46));',
+        '  if(d.y < 0.0) col = mix(uHorizon * 0.78, uHorizon * 0.42, clamp(-d.y * 3.0, 0.0, 1.0));',
+        '  float sunDot = clamp(dot(d, normalize(uSunDir)), 0.0001, 1.0);',
+        '  // Wide Mie aureole + bright solar corona + crisp sun disc',
+        '  float halo = pow(sunDot, 5.0) * 0.18 + pow(sunDot, 18.0) * (0.42 - 0.25 * uCloud);',
+        '  float disc = smoothstep(0.9991, 0.99978, sunDot) * (1.0 - uCloud * 0.85);',
+        '  vec3 sunTint = mix(vec3(1.0, 0.54, 0.20), vec3(1.0, 0.97, 0.90), clamp(uSunDir.y * 2.1, 0.0, 1.0));',
+        '  col += sunTint * (halo + disc * 3.2) * (1.0 - uNight * 0.92);',
+        '  // Procedural high-altitude MSFS FBM sky cloud layer with sunlit rim',
+        '  if(d.y > 0.015){',
+        '    vec2 uv = d.xz / (d.y + 0.14);',
+        '    float cov = fbmSky(uv * 0.85 + vec2(uTime * 0.004, -uTime * 0.002));',
+        '    float wisps = fbmSky(uv * 2.1 - vec2(uTime * 0.007, uTime * 0.003));',
+        '    float density = smoothstep(0.56 - uCloud * 0.28, 0.84 - uCloud * 0.18, cov * 0.72 + wisps * 0.28);',
+        '    float horizonFade = smoothstep(0.015, 0.16, d.y);',
+        '    vec3 cloudLit = mix(vec3(0.97, 0.98, 1.0), sunTint * 1.08, pow(sunDot, 3.0) * 0.65);',
+        '    vec3 cloudShadow = mix(vec3(0.58, 0.66, 0.76), uHorizon * 0.88, 0.45);',
+        '    cloudLit = mix(cloudLit, cloudShadow * 0.35, uNight);',
+        '    vec3 cCol = mix(cloudShadow, cloudLit, clamp(0.45 + sunDot * 0.55 - wisps * 0.25, 0.0, 1.0));',
+        '    col = mix(col, cCol, density * horizonFade * clamp(0.42 + uCloud * 0.55, 0.3, 0.92));',
+        '  }',
         '  // Sunset / Sunrise warm atmospheric band near horizon toward sun azimuth',
-        '  float duskBand = exp(-abs(d.y) * 9.0) * pow(sunDot, 2.2) * (1.0 - abs(uSunDir.y));',
-        '  col += vec3(0.95, 0.42, 0.16) * duskBand * 0.8 * (1.0 - uNight);',
-        '  // Night stars & cool moonlight disc',
+        '  float duskBand = exp(-abs(d.y) * 8.5) * pow(sunDot, 1.9) * (1.0 - abs(uSunDir.y));',
+        '  col += vec3(1.0, 0.44, 0.16) * duskBand * 0.95 * (1.0 - uNight);',
+        '  // Night stars & cool moonlight corona',
         '  if(uNight > 0.05 && d.y > 0.02){',
-        '    vec3 cell = floor(d * 290.0);',
+        '    vec3 cell = floor(d * 310.0);',
         '    float st = hash3(cell);',
-        '    if(st > 0.9965){',
-        '      float tw = 0.65 + 0.35 * sin(uTime * 3.0 + st * 90.0);',
-        '      col += vec3(0.88, 0.93, 1.0) * uNight * (1.0 - uCloud * 0.85) * tw * 1.4;',
+        '    if(st > 0.996){',
+        '      float tw = 0.6 + 0.4 * sin(uTime * 3.2 + st * 95.0);',
+        '      col += vec3(0.88, 0.93, 1.0) * uNight * (1.0 - uCloud * 0.85) * tw * 1.55;',
         '    }',
         '    vec3 moonDir = normalize(vec3(-uSunDir.x, abs(uSunDir.y) + 0.38, -uSunDir.z));',
-        '    float md = max(dot(d, moonDir), 0.0);',
+        '    float md = clamp(dot(d, moonDir), 0.0001, 1.0);',
         '    float moonDisc = smoothstep(0.9991, 0.9995, md);',
-        '    col += vec3(0.75, 0.85, 1.0) * (pow(md, 24.0) * 0.25 + moonDisc * 1.5) * uNight * (1.0 - uCloud * 0.7);',
+        '    col += vec3(0.75, 0.86, 1.0) * (pow(md, 14.0) * 0.16 + pow(md, 48.0) * 0.32 + moonDisc * 1.7) * uNight * (1.0 - uCloud * 0.7);',
         '  }',
         '  // Thunderstorm sheet lightning flash',
         '  col += vec3(0.75, 0.85, 1.0) * uLightning * 0.95;',
@@ -81,44 +109,52 @@
       ].join('\n')
     });
 
-    const sky = new THREE.Mesh(new THREE.SphereGeometry(7600, 32, 20), skyMat);
+    const sky = new THREE.Mesh(new THREE.SphereGeometry(7600, 36, 24), skyMat);
     scene.add(sky);
 
-    // Volumetric-style drifting Sri Lankan cumulus & monsoon cloud deck
+    // Volumetric-style drifting multi-lobe 3D cumulus & monsoon cloud deck
     const cloudGroup = new THREE.Group();
     sky.add(cloudGroup);
     const cloudCanvas = document.createElement('canvas');
-    cloudCanvas.width = 128;
-    cloudCanvas.height = 128;
+    cloudCanvas.width = 256;
+    cloudCanvas.height = 256;
     const cg = cloudCanvas.getContext('2d');
-    const cGrad = cg.createRadialGradient(64, 64, 8, 64, 64, 62);
-    cGrad.addColorStop(0, 'rgba(255,255,255,0.92)');
-    cGrad.addColorStop(0.45, 'rgba(244,248,255,0.58)');
-    cGrad.addColorStop(1, 'rgba(255,255,255,0.0)');
-    cg.fillStyle = cGrad;
-    cg.fillRect(0, 0, 128, 128);
+    const lobes = [
+      [128, 128, 72, 0.85], [82, 138, 52, 0.75], [174, 136, 54, 0.75],
+      [104, 102, 50, 0.82], [152, 106, 48, 0.80], [128, 152, 62, 0.60]
+    ];
+    lobes.forEach(([cx, cy, rad, al]) => {
+      const cGrad = cg.createRadialGradient(cx, cy - rad * 0.15, rad * 0.1, cx, cy, rad);
+      cGrad.addColorStop(0, `rgba(255,255,255,${al})`);
+      cGrad.addColorStop(0.55, `rgba(236,243,252,${(al * 0.62).toFixed(2)})`);
+      cGrad.addColorStop(1, 'rgba(220,230,245,0.0)');
+      cg.fillStyle = cGrad;
+      cg.beginPath();
+      cg.arc(cx, cy, rad, 0, TAU);
+      cg.fill();
+    });
     const cloudTex = new THREE.CanvasTexture(cloudCanvas);
     const cloudMat = new THREE.SpriteMaterial({
       map: cloudTex,
       fog: false,
       depthWrite: false,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.68,
       color: 0xffffff
     });
 
     const clouds = [];
-    for (let i = 0; i < 64; i++) {
+    for (let i = 0; i < 84; i++) {
       const sp = new THREE.Sprite(cloudMat);
-      const ang = (i / 64) * TAU + (i % 5) * 0.14;
-      const dist = 1400 + ((i * 397) % 3400);
+      const ang = (i / 84) * TAU + (i % 7) * 0.11;
+      const dist = 1350 + ((i * 419) % 3600);
       const baseX = Math.cos(ang) * dist;
       const baseZ = Math.sin(ang) * dist;
-      const baseY = 340 + ((i * 173) % 520);
+      const baseY = 380 + ((i * 197) % 620);
       sp.position.set(baseX, baseY, baseZ);
-      sp.scale.set(620 + (i % 7) * 120, 170 + (i % 4) * 45, 1);
+      sp.scale.set(680 + (i % 7) * 140, 210 + (i % 4) * 52, 1);
       cloudGroup.add(sp);
-      clouds.push({ sp, baseX, baseZ, speed: 6 + (i % 5) * 2.5 });
+      clouds.push({ sp, baseX, baseZ, speed: 5 + (i % 6) * 2.2 });
     }
 
     let nextLightning = 12;
