@@ -1,0 +1,65 @@
+name: Auto Merge PR
+
+on:
+  workflow_run:
+    workflows: ["CI Verify"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Auto Approve & Merge Trusted PR
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve and Squash-Merge Passing PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          PR_JSON=$(gh api "repos/${REPO}/pulls?state=open&per_page=30" --jq "
+            map(select(.head.sha == \"${HEAD_SHA}\" or .head.ref == \"${HEAD_BRANCH}\")) | .[0]
+          ")
+
+          if [ -z "$PR_JSON" ] || [ "$PR_JSON" = "null" ]; then
+            echo "No matching open PR found for commit ${HEAD_SHA}."
+            exit 0
+          fi
+
+          PR_NUM=$(echo "$PR_JSON" | jq -r '.number')
+          IS_DRAFT=$(echo "$PR_JSON" | jq -r '.draft')
+          ASSOC=$(echo "$PR_JSON" | jq -r '.author_association')
+          HEAD_REPO=$(echo "$PR_JSON" | jq -r '.head.repo.full_name // ""')
+          AUTHOR=$(echo "$PR_JSON" | jq -r '.user.login')
+
+          echo "Inspecting PR #${PR_NUM} by ${AUTHOR} (assoc=${ASSOC}, head_repo=${HEAD_REPO}, draft=${IS_DRAFT})"
+
+          if [ "$IS_DRAFT" = "true" ]; then
+            echo "Skipping draft PR #${PR_NUM}."
+            exit 0
+          fi
+
+          TRUSTED="false"
+          if [ "$HEAD_REPO" = "$REPO" ]; then TRUSTED="true"; fi
+          if [ "$ASSOC" = "OWNER" ] || [ "$ASSOC" = "COLLABORATOR" ] || [ "$ASSOC" = "MEMBER" ]; then TRUSTED="true"; fi
+          if [ "$AUTHOR" = "dependabot[bot]" ] || [ "$AUTHOR" = "github-actions[bot]" ]; then TRUSTED="true"; fi
+
+          if [ "$TRUSTED" != "true" ]; then
+            echo "External fork PR from untrusted contributor (${ASSOC}) — leaving for manual review."
+            exit 0
+          fi
+
+          gh pr review "$PR_NUM" --repo "$REPO" --approve || true
+          if ! gh pr merge "$PR_NUM" --repo "$REPO" --squash --delete-branch; then
+            echo "Direct merge deferred — enabling GitHub auto-merge queue..."
+            gh pr merge "$PR_NUM" --repo "$REPO" --auto --squash --delete-branch
+          fi
+          echo "PR #${PR_NUM} processed for automatic merge."

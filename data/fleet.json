@@ -1,0 +1,62 @@
+{
+  "version": "3.0.0",
+  "databaseSource": "github:RaidenShogun-AI/ceylon-bus-simulator/data/fleet.json",
+  "fleet": [
+    {
+      "id": "metro",
+      "name": "Metro AC Low-Floor",
+      "badge": "NEW 3.0 · CITY TRANSIT",
+      "region": "Global Urban",
+      "powerKw": 225,
+      "massKg": 13800,
+      "maxSpeedKmh": 98,
+      "capacity": 76,
+      "gears": 6,
+      "autoDefault": true,
+      "hasDualDoors": true,
+      "electric": false
+    },
+    {
+      "id": "viking",
+      "name": "Ashok Leyland Viking",
+      "badge": "CLASSIC HERITAGE",
+      "region": "South Asia / Mountain",
+      "powerKw": 155,
+      "massKg": 14200,
+      "maxSpeedKmh": 105,
+      "capacity": 52,
+      "gears": 5,
+      "autoDefault": false,
+      "hasDualDoors": false,
+      "electric": false
+    },
+    {
+      "id": "express",
+      "name": "Yutong Luxury Coach",
+      "badge": "INTERCONTINENTAL SPEC",
+      "region": "Global Express",
+      "powerKw": 270,
+      "massKg": 15800,
+      "maxSpeedKmh": 122,
+      "capacity": 54,
+      "gears": 6,
+      "autoDefault": true,
+      "hasDualDoors": false,
+      "electric": false
+    },
+    {
+      "id": "electro",
+      "name": "Sovereign Electro AC",
+      "badge": "ZERO-EMISSION EV",
+      "region": "Global Net-Zero",
+      "powerKw": 310,
+      "massKg": 14400,
+      "maxSpeedKmh": 115,
+      "capacity": 64,
+      "gears": 2,
+      "autoDefault": true,
+      "hasDualDoors": true,
+      "electric": true
+    }
+  ]
+}

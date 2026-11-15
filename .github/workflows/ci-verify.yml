@@ -1,0 +1,150 @@
+name: CI Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify Static App & JS Modules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check required files and JS syntax
+        run: |
+          node -e '
+          const fs = require("fs");
+          const vm = require("vm");
+          const path = require("path");
+
+          const reqFiles = [
+            "index.html",
+            "server.py",
+            "data/world-routes.json",
+            "data/fleet.json",
+            "data/hall-of-fame.json",
+            "js/vendor/three.min.js",
+            "js/github-db.js",
+            "js/assets-pack.js",
+            "js/routes-data.js",
+            "js/bus-models.js",
+            "js/map-engine.js",
+            "js/msfs-atmosphere.js"
+          ];
+          for (const f of reqFiles) {
+            if (!fs.existsSync(f)) {
+              console.error("Missing required file:", f);
+              process.exit(1);
+            }
+          }
+
+          for (const jf of reqFiles.filter(x => x.endsWith(".json"))) {
+            JSON.parse(fs.readFileSync(jf, "utf8"));
+            console.log("JSON schema OK:", jf);
+          }
+          const worldDb = JSON.parse(fs.readFileSync("data/world-routes.json", "utf8"));
+          const fleetDb = JSON.parse(fs.readFileSync("data/fleet.json", "utf8"));
+          const hofDb = JSON.parse(fs.readFileSync("data/hall-of-fame.json", "utf8"));
+          if (!Array.isArray(worldDb.routes) || worldDb.routes.length < 14) {
+            throw new Error("Expected at least 14 world routes in data/world-routes.json");
+          }
+          if (!Array.isArray(fleetDb.fleet) || fleetDb.fleet.length < 4) {
+            throw new Error("Expected at least 4 buses in data/fleet.json");
+          }
+          if (!Array.isArray(hofDb.leaders) || hofDb.leaders.length < 3) {
+            throw new Error("Expected at least 3 leaders in data/hall-of-fame.json");
+          }
+
+          for (const f of reqFiles.filter(x => x.endsWith(".js") && !x.includes("/vendor/"))) {
+            const code = fs.readFileSync(f, "utf8");
+            new vm.Script(code, { filename: f });
+            console.log("JS syntax OK:", f, "(" + code.length + " bytes)");
+          }
+
+          const html = fs.readFileSync("index.html", "utf8");
+          const scriptTags = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+          let idx = 0;
+          for (const m of scriptTags) {
+            idx++;
+            const attrs = m[1] || "";
+            const srcMatch = attrs.match(/\bsrc=["'\'']([^"'\'']+)["'\'']/i);
+            if (srcMatch) {
+              const src = srcMatch[1];
+              if (!/^https?:\/\//i.test(src) && !fs.existsSync(src)) {
+                console.error("Missing referenced local script:", src);
+                process.exit(1);
+              }
+              continue;
+            }
+            const body = m[2].trim();
+            if (body) {
+              new vm.Script(body, { filename: "index.html#script-" + idx });
+            }
+          }
+          console.log("Verified " + idx + " script blocks in index.html cleanly.");
+
+          // Smoke-check core v3.0 pure-logic modules under a minimal browser mock
+          const win = {
+            location: { search: "", hostname: "raidenshogun-ai.github.io", pathname: "/ceylon-bus-simulator/" },
+            localStorage: { getItem: () => null, setItem: () => {} },
+            sessionStorage: { getItem: () => null, setItem: () => {} },
+            dispatchEvent: () => {},
+            CustomEvent: function(n, o){ return { type: n, detail: o && o.detail }; }
+          };
+          win.window = win;
+          const ctx = vm.createContext({
+            window: win,
+            location: win.location,
+            localStorage: win.localStorage,
+            sessionStorage: win.sessionStorage,
+            CustomEvent: win.CustomEvent,
+            Math,
+            Date,
+            JSON,
+            Number,
+            String,
+            Boolean,
+            Array,
+            Object,
+            Map,
+            Set,
+            console
+          });
+          vm.runInContext(fs.readFileSync("js/github-db.js", "utf8"), ctx);
+          if (!win.GITHUB_DB || !win.GITHUB_DB.loadAll || win.GITHUB_DB.repo.owner !== "RaidenShogun-AI") {
+            throw new Error("GITHUB_DB failed to initialize cleanly");
+          }
+          vm.runInContext(fs.readFileSync("js/routes-data.js", "utf8"), ctx);
+          if (!win.ROUTES_ENGINE || !win.ROUTES_ENGINE.catalog) {
+            throw new Error("ROUTES_ENGINE failed to register catalog");
+          }
+          const rKeys = Object.keys(win.ROUTES_ENGINE.catalog);
+          if (rKeys.length < 14) {
+            throw new Error("Expected at least 14 global routes, got: " + rKeys.join(","));
+          }
+          for (const rid of rKeys) {
+            const g = win.ROUTES_ENGINE.buildRouteGeometry(rid, "auto");
+            if (!g || !g.PATH || g.PATH.length < 100 || !(g.exactKmPerWorldKm > 0)) {
+              throw new Error("Invalid geometry for route " + rid);
+            }
+          }
+          (async () => {
+            const custom = await win.ROUTES_ENGINE.createGlobalCustomRoute("48.8584, 2.2945", "48.8049, 2.1204");
+            if (!custom || !custom.id.startsWith("custom_") || !(custom.realKm > 5)) {
+              throw new Error("Custom global route generator failed");
+            }
+            console.log("Verified " + rKeys.length + " world corridors + GitHub DB + custom global route:", custom.id);
+          })().catch(e => { console.error(e); process.exit(1); });
+          '

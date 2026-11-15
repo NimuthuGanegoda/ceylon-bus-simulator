@@ -1,0 +1,93 @@
+{
+  "version": "3.0.0",
+  "repository": "RaidenShogun-AI/ceylon-bus-simulator",
+  "liveHost": "https://raidenshogun-ai.github.io/ceylon-bus-simulator/",
+  "activeChallenge": {
+    "id": "world-grand-tour-s1",
+    "title": "Global Grand Tour · Season 1",
+    "desc": "Complete any World Corridor or Custom Global Route with zero traffic violations and high punctuality, then submit your verified telemetry record via GitHub.",
+    "type": "score",
+    "target": 45000,
+    "winners": 3
+  },
+  "leaders": [
+    {
+      "id": "gh_sovereign_shogun",
+      "nick": "RaidenShogun",
+      "country": "JP/LK",
+      "route": "Colombo – Badulla (99)",
+      "bus": "Sovereign Electro AC",
+      "money": 184200,
+      "best": 62400,
+      "pax": 612,
+      "trips": 9,
+      "ach": ["route", "safe", "pax", "badulla"],
+      "verified": true
+    },
+    {
+      "id": "gh_architect_nimuthu",
+      "nick": "NimuthuRaiden",
+      "country": "LK",
+      "route": "Tokyo – Mt. Fuji (FUJI)",
+      "bus": "Yutong Luxury Coach",
+      "money": 162800,
+      "best": 58900,
+      "pax": 495,
+      "trips": 7,
+      "ach": ["route", "safe"],
+      "verified": true
+    },
+    {
+      "id": "gh_guuji_miko",
+      "nick": "GuujiMiko",
+      "country": "JP",
+      "route": "Zürich – Milan Alps (E35)",
+      "bus": "Metro AC Low-Floor",
+      "money": 141500,
+      "best": 51200,
+      "pax": 438,
+      "trips": 6,
+      "ach": ["route", "safe"],
+      "verified": true
+    },
+    {
+      "id": "gh_london_clipper",
+      "nick": "ThamesExpress",
+      "country": "UK",
+      "route": "London Route 11",
+      "bus": "Metro AC Low-Floor",
+      "money": 98400,
+      "best": 34600,
+      "pax": 388,
+      "trips": 5,
+      "ach": ["route"],
+      "verified": true
+    }
+  ],
+  "hallOfFame": [
+    {
+      "kind": "d",
+      "key": "2026-11-14",
+      "uid": "gh_sovereign_shogun",
+      "nick": "RaidenShogun",
+      "score": 62400,
+      "route": "Colombo – Badulla"
+    },
+    {
+      "kind": "w",
+      "key": "2026-W46",
+      "uid": "gh_architect_nimuthu",
+      "nick": "NimuthuRaiden",
+      "score": 162800,
+      "route": "Tokyo – Mt. Fuji"
+    },
+    {
+      "kind": "m",
+      "key": "2026-11",
+      "uid": "gh_sovereign_shogun",
+      "nick": "RaidenShogun",
+      "score": 184200,
+      "route": "World Corridors"
+    }
+  ]
+}
