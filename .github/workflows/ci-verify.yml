@@ -120,10 +120,12 @@ jobs:
             Object,
             Map,
             Set,
+            setTimeout,
+            clearTimeout,
             console
           });
           vm.runInContext(fs.readFileSync("js/github-db.js", "utf8"), ctx);
-          if (!win.GITHUB_DB || !win.GITHUB_DB.loadAll || win.GITHUB_DB.repo.owner !== "RaidenShogun-AI") {
+          if (!win.GITHUB_DB || !win.GITHUB_DB.loadAll || String(win.GITHUB_DB.repo.owner).toLowerCase() !== "raidenshogun-ai") {
             throw new Error("GITHUB_DB failed to initialize cleanly");
           }
           vm.runInContext(fs.readFileSync("js/routes-data.js", "utf8"), ctx);

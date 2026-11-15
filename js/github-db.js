@@ -19,8 +19,8 @@
       const m = location.hostname.match(/^([a-z0-9-]+)\.github\.io$/i);
       const parts = location.pathname.split('/').filter(Boolean);
       if (m && parts.length >= 1) {
-        owner = m[1];
-        repo = parts[0];
+        owner = m[1].toLowerCase() === DEFAULT_OWNER.toLowerCase() ? DEFAULT_OWNER : m[1];
+        repo = parts[0].toLowerCase() === DEFAULT_REPO.toLowerCase() ? DEFAULT_REPO : parts[0];
       }
     } catch (e) {}
     return { owner, repo, branch: DEFAULT_BRANCH };
