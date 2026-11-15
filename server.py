@@ -16,11 +16,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
+    def do_POST(self):
+        if self.path == '/log':
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_data = self.rfile.read(content_length).decode('utf-8')
+            print(f"\n🚨 [BROWSER LOG/ERROR]: {post_data}\n", flush=True)
+            self.send_response(200)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(b"OK")
+        else:
+            self.send_error(404)
+
     def end_headers(self):
         # Prevent caching during local development
         self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
         self.send_header('Access-Control-Allow-Origin', '*')
         super().end_headers()
+
+socketserver.TCPServer.allow_reuse_address = True
 
 def run_server():
     port = PORT

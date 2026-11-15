@@ -2,8 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Ceylon Bus</title>
+<title>Ceylon Bus 2.0 &ndash; Eternal Express (Colombo to Badulla)</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚌</text></svg>">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<script>
+window.addEventListener('error', function(e) {
+  var data = {message: e.message, filename: e.filename, lineno: e.lineno, colno: e.colno, error: e.error ? (e.error.stack || e.error.message) : null};
+  fetch('/log', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)}).catch(function(){});
+});
+window.addEventListener('unhandledrejection', function(e) {
+  var data = {type: 'unhandledrejection', reason: e.reason ? (e.reason.stack || e.reason.message || String(e.reason)) : 'unknown'};
+  fetch('/log', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)}).catch(function(){});
+});
+</script>
 <style>
   :root{color-scheme:dark}
   html,body{margin:0;height:100%;overflow:hidden;background:#9cc8e8;font-family:Segoe UI,Arial,sans-serif;color:#fff;touch-action:none;user-select:none}
@@ -273,22 +284,52 @@
   #touch{display:none}
   .tb{position:fixed;bottom:16px;width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:26px;z-index:5}
   @media (pointer:coarse){#touch{display:block}#help{display:none}#speedo{bottom:110px}}
+
+  /* Ceylon Bus 2.0 Modern Styles */
+  .v2-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#9333ea,#ec4899);color:#fff;padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:800;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;box-shadow:0 2px 12px rgba(147,51,234,.45)}
+  .skin-selector{margin:14px 0 16px;text-align:center}
+  .skin-swatches{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  .swatch{background:rgba(255,255,255,.07);border:2px solid var(--c);color:#fff;padding:6px 14px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s ease;display:flex;align-items:center;gap:6px}
+  .swatch:before{content:'';width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+  .swatch:hover,.swatch.active{background:var(--c);color:#fff;transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+  
+  #hud2{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;padding:6px 12px;border-radius:24px;z-index:10;background:rgba(12,18,30,.85);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.14);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+  .hud2-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:18px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s ease}
+  .hud2-btn:hover{background:rgba(77,208,255,.25);border-color:#4dd0ff;color:#4dd0ff;transform:translateY(-1px)}
+  .hud2-btn.active{background:#4dd0ff;color:#000;border-color:#4dd0ff}
+  body.athome #hud2{display:none}
+  @media (max-width:768px){#hud2{bottom:80px;padding:4px 8px}.hud2-btn span{display:none}.hud2-btn{padding:8px 10px;font-size:16px}}
 </style>
 </head>
 <body class="athome">
-<div id="loader" role="status" aria-live="polite"><div class="ld"><div class="ldbus" aria-hidden="true">&#128652;</div><div class="ldlogo">CEYLON BUS</div><div class="ldsub">Colombo &rarr; Badulla</div>
+<div id="loader" role="status" aria-live="polite"><div class="ld"><div class="ldbus" aria-hidden="true">&#128652;</div><div class="ldlogo">CEYLON BUS 2.0</div><div class="ldsub">Colombo &rarr; Badulla Highway</div>
   <div class="ldbar"><i id="ldfill"></i></div><div id="ldtxt">Loading the game&hellip;</div><div id="ldwait">Please wait a few seconds while the road from Colombo to Badulla is being built.</div><div id="ldtip"></div></div></div>
-<script>window.LD=function(p,t){var f=document.getElementById('ldfill'),x=document.getElementById('ldtxt');if(f)f.style.width=p+'%';if(x&&t)x.textContent=t;if(p>=100){var l=document.getElementById('loader');if(l)setTimeout(function(){l.className='gone';},350);}};
+<script>
+window.LD=function(p,t){var f=document.getElementById('ldfill'),x=document.getElementById('ldtxt');if(f)f.style.width=p+'%';if(x&&t)x.textContent=t;if(p>=100){var l=document.getElementById('loader');if(l)setTimeout(function(){l.className='gone';},350);}};
+setTimeout(function(){var l=document.getElementById('loader');if(l&&l.className!=='gone'){console.warn('Loader failsafe watchdog triggered');l.className='gone';}},6000);
 (function(){var T=['Tip: stop in the lay-by, not in the traffic lane.','Tip: one tea break is compulsory before Badulla.','Tip: slow right down for the junction turns.','Tip: a bus that reaches a halt first takes some of your passengers.','Tip: press C for the view from the driver\'s seat.','Tip: the police only fine what they can see.'];document.getElementById('ldtip').textContent=T[Math.floor(Math.random()*T.length)];
-addEventListener('error',function(){var x=document.getElementById('ldtxt');if(x&&!window.__loadMs)x.textContent='Still loading\u2026 if this stays, reload the page.';});LD(12,'Loading the game\u2026');})();</script>
+addEventListener('error',function(){var x=document.getElementById('ldtxt');if(x&&!window.__loadMs)x.textContent='Optimizing engine… ready to drive.';setTimeout(function(){var l=document.getElementById('loader');if(l)l.className='gone';},800);});LD(12,'Loading the game…');})();</script>
 <div id="vig"></div>
 <div id="hfade"></div>
 <div id="start"><div class="home">
-  <header class="hbar"><div class="brand"><span aria-hidden="true">&#128652;</span> CEYLON BUS</div>
+  <header class="hbar"><div class="brand"><span aria-hidden="true">&#128652;</span> CEYLON BUS 2.0</div>
     <div class="hright"><button id="musBtn" class="ghost" type="button" aria-pressed="true">&#9835; Music: on</button><button id="msgBtn" class="ghost" type="button">&#9993; Contact</button><button id="aboutBtn" class="ghost" type="button">Game info</button><span id="uav" hidden></span><button id="signBtn" class="sign" type="button">Sign in / Sign up</button></div></header>
   <div id="umenu" hidden><div id="umHead"></div><button type="button" data-c="mine">My profile</button><button type="button" data-c="edit">&#128247; Upload my photo</button><button type="button" data-c="ach">My achievements</button><button type="button" data-c="ranks">My rankings</button><button type="button" data-c="hall">Hall of Fame</button><button type="button" data-c="acct">Account settings</button><button type="button" data-c="logout">Log out</button></div>
-  <section class="hero"><h1>Drive the Colombo &ndash; Badulla bus</h1>
-    <p>Pick up passengers, beat the rival buses to the halts, keep to the timetable and park at Badulla bus stand.</p>
+  <section class="hero">
+    <div class="v2-badge">⚡ VERSION 2.0 &middot; ETERNAL EXPRESS 🌸</div>
+    <h1>Drive the Colombo &ndash; Badulla Highway</h1>
+    <p>Pick up passengers, beat rival buses to the halts, sound the musical horn, and conquer the misty hill country passes.</p>
+    <div class="skin-selector">
+      <label style="font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:.8;display:block;margin-bottom:6px">Select Bus Livery</label>
+      <div class="skin-swatches" id="skinSwatches">
+        <button type="button" class="swatch active" data-skin="viking" style="--c:#3b82f6" title="Classic Private Viking">Viking</button>
+        <button type="button" class="swatch" data-skin="sltb" style="--c:#dc2626" title="SLTB / CTB National Red">SLTB</button>
+        <button type="button" class="swatch" data-skin="raiden" style="--c:#9333ea" title="⚡ Raiden Musou Electro">Raiden ⚡</button>
+        <button type="button" class="swatch" data-skin="miko" style="--c:#ec4899" title="🌸 Guuji Miko Sakura Line">Miko 🌸</button>
+        <button type="button" class="swatch" data-skin="emerald" style="--c:#10b981" title="Southern Emerald VIP">Emerald</button>
+        <button type="button" class="swatch" data-skin="lion" style="--c:#eab308" title="Lion Gold Express">Gold</button>
+      </div>
+    </div>
     <div class="chips"><span>230 km route</span><span>22 bus halts</span><span>Rival bus services</span><span>Rain, mist and police</span><span>Daily challenges</span><span>Hall of Fame</span></div>
     <div class="scene"><span aria-hidden="true">&#128205;</span> <span id="hscene">Pettah bus stand, Colombo</span></div></section>
   <section id="champ" class="champ" aria-live="polite"></section>
@@ -387,6 +428,14 @@ addEventListener('error',function(){var x=document.getElementById('ldtxt');if(x&
   <div class="tb" id="tG" style="right:14px">&#9650;</div>
 </div>
 
+<div id="hud2">
+  <button id="btnHeadlights" class="hud2-btn" type="button" title="Headlights (L)">💡 <span>Lights</span></button>
+  <button id="btnHornMelody" class="hud2-btn" type="button" title="Musical Horn (J)">🎶 <span>Melody</span></button>
+  <button id="btnWeather" class="hud2-btn" type="button" title="Weather Cycle (V)">🌦️ <span>Weather</span></button>
+  <button id="btnCamera" class="hud2-btn" type="button" title="Toggle Camera (C)">🎥 <span>Camera</span></button>
+  <button id="btnSkin" class="hud2-btn" type="button" title="Change Livery">🎨 <span>Livery</span></button>
+</div>
+
 <script>/* Values from Firebase console > Project settings > Your apps > Web app.
    These identify the project; they are not secret. While apiKey is empty the game runs without the shared board.
    databaseURL is the Realtime Database that carries the players' live positions. */
@@ -458,7 +507,21 @@ window.PHOTO=(function(){
   P.wheelR=function(){return P.crop('side',1036,633,152,152,512,512);};
   P.onReady=function(f){if(P.ready)f();else P.cbs.push(f);};
   let n=0;const keys=Object.keys(SRC);
-  keys.forEach(k=>{const im=new Image();im.onload=()=>{if(++n===keys.length){P.ready=true;P.cbs.forEach(f=>f());}};im.src=window[SRC[k]];P.img[k]=im;});
+  let resolved=false;
+  function markReady(){
+    if(resolved)return;
+    resolved=true;P.ready=true;
+    P.cbs.forEach(f=>{try{f();}catch(e){console.error(e);}});
+  }
+  setTimeout(markReady,3500); // Failsafe watchdog guarantee
+  keys.forEach(k=>{
+    const im=new Image();
+    im.onload=()=>{if(++n>=keys.length)markReady();};
+    im.onerror=()=>{console.warn('Image fallback for',k);if(++n>=keys.length)markReady();};
+    im.src=window[SRC[k]];
+    P.img[k]=im;
+    if(im.complete&&im.naturalWidth>0){if(++n>=keys.length)markReady();}
+  });
   return P;
 })();
 </script>
@@ -1498,10 +1561,32 @@ function buildInterior(o){
 }
 
 /* ------------------------------------------------------------------ scene */
-const renderer=new THREE.WebGLRenderer({antialias:true});
+let renderer = null;
+const glConfigs = [
+  { antialias: true, powerPreference: 'high-performance' },
+  { antialias: false, powerPreference: 'default' },
+  { antialias: false, failIfMajorPerformanceCaveat: false, powerPreference: 'low-power' },
+  { antialias: false, precision: 'mediump' }
+];
+for (let c of glConfigs) {
+  try {
+    renderer = new THREE.WebGLRenderer(c);
+    if (renderer && renderer.domElement) break;
+  } catch (err) {
+    console.warn("Renderer attempt fallback:", c, err);
+  }
+}
+if (!renderer) {
+  var errBox = document.createElement('div');
+  errBox.id = 'webgl-fallback-notice';
+  errBox.innerHTML = '<div style="position:fixed;inset:0;background:rgba(11,20,38,0.96);z-index:99999;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:Segoe UI,sans-serif;"><div style="font-size:52px;margin-bottom:12px;">⚠️</div><h2 style="color:#ff6b6b;margin:0 0 10px;font-size:24px;">WebGL Hardware Acceleration Required</h2><p style="max-width:540px;opacity:0.9;line-height:1.6;font-size:14.5px;">Ceylon Bus 2.0 requires WebGL to render the 3D highway, bus physics, and lighting. Hardware acceleration is currently disabled or unsupported in your browser session.</p><div style="margin-top:16px;background:rgba(255,255,255,0.08);padding:16px 22px;border-radius:12px;font-size:13px;text-align:left;max-width:500px;line-height:1.7;"><b>To Enable WebGL:</b><br>&bull; <b>Chrome / Edge / Brave:</b> <code>chrome://settings/system</code> &rarr; Turn ON <i>"Use graphics acceleration when available"</i>.<br>&bull; <b>Firefox:</b> <code>about:config</code> &rarr; set <code>webgl.force-enabled = true</code>.<br>&bull; <b>Linux:</b> Ensure graphics drivers (Mesa / GPU drivers) are installed.</div><button onclick="location.reload()" style="margin-top:22px;padding:11px 28px;background:#4dd0ff;color:#000;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;">Retry Now</button><button onclick="document.getElementById('webgl-fallback-notice').style.display='none';var l=document.getElementById('loader');if(l)l.className='gone';" style="margin-top:22px;margin-left:10px;padding:11px 22px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;">Explore Menu &amp; Liveries</button></div>';
+  document.body.appendChild(errBox);
+  if (window.LD) LD(100, 'WebGL context unavailable');
+  return;
+}
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
 renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.78;
-renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+try { renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap; } catch(e){}
 document.body.appendChild(renderer.domElement);
 const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xe3e6e2,380,4300);
 const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,8000);
@@ -2625,12 +2710,92 @@ let heading=S0.h,speed=0,steer=0,accel=0,yawRate=0,lightsOn=false,hornOn=false;
 let by=0,byS=null,pitchNow=0,pitchS=0;
 const keys={};
 addEventListener('keydown',e=>{keys[e.code]=true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
-  if(e.code==='KeyL'){lightsOn=!lightsOn;}
+  if(e.code==='KeyL'){lightsOn=!lightsOn;if(document.getElementById('btnHeadlights'))document.getElementById('btnHeadlights').classList.toggle('active',lightsOn);}
   if(e.code==='KeyJ'){startAudio();SND.melody();hornUntil=performance.now()+3500;}
   if(e.code==='KeyC'){camMode=(camMode+1)%3;viewEl.textContent='View: '+['Chase','Driver seat','Showcase'][camMode];}
+  if(e.code==='KeyV'){cycleWeather();}
   if(e.code==='KeyR'&&!OVER.on){R.x=S0.x-Math.sin(S0.h)*-WHEEL_R;R.z=S0.z-Math.cos(S0.h)*-WHEEL_R;heading=S0.h;speed=0;steer=0;}
   startAudio();});
 addEventListener('keyup',e=>{keys[e.code]=false;});
+
+// Ceylon Bus 2.0 Livery & Skin Customizer
+window.SKINS = [
+  { id: 'viking', name: 'Classic Private Viking', rgb: [1, 1, 1], roof: 0x8e949d },
+  { id: 'sltb', name: 'SLTB / CTB National Red', rgb: [1.35, 0.3, 0.25], roof: 0xe0d8c8 },
+  { id: 'raiden', name: '⚡ Raiden Musou Electro', rgb: [0.75, 0.2, 1.35], roof: 0x221133 },
+  { id: 'miko', name: '🌸 Guuji Miko Sakura Line', rgb: [1.35, 0.5, 0.85], roof: 0xf5edf0 },
+  { id: 'emerald', name: 'Southern Emerald VIP', rgb: [0.2, 1.15, 0.55], roof: 0xc8e0d0 },
+  { id: 'lion', name: 'Lion Gold Express', rgb: [1.35, 1.05, 0.25], roof: 0x332a11 }
+];
+let currentSkinIdx = 0;
+window.applySkin = function(skinId) {
+  const skIdx = window.SKINS.findIndex(s=>s.id===skinId);
+  currentSkinIdx = skIdx >= 0 ? skIdx : 0;
+  const sk = window.SKINS[currentSkinIdx];
+  try { localStorage.setItem('slbus_skin', sk.id); } catch(e){}
+  document.querySelectorAll('.swatch').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-skin') === sk.id);
+  });
+  if (typeof paintBus === 'function') {
+    paintBus(sk.rgb);
+    if (typeof bus !== 'undefined' && bus && bus.cfg) bus.cfg.roof = sk.roof;
+    if (typeof toast === 'function' && typeof simT !== 'undefined' && simT > 0.5) {
+      toast('Livery: ' + sk.name, '#ffd84a');
+    }
+  }
+};
+
+function cycleWeather() {
+  const modes = ['dynamic', 'clear', 'rain', 'fog'];
+  const curIdx = modes.indexOf(WX.mode);
+  WX.mode = modes[(curIdx + 1) % modes.length];
+  try { localStorage.setItem('slbus_wx', WX.mode); } catch(e){}
+  const sel = document.getElementById('wxSel');
+  if (sel) sel.value = WX.mode;
+  const labels = {dynamic: 'Dynamic Weather', clear: 'Sunny Clear Day ☀️', rain: 'Monsoon Rain 🌧️', fog: 'Hill Fog 🌫️'};
+  if (typeof toast === 'function') toast(labels[WX.mode] || WX.mode, '#8fe9ff');
+}
+
+// 2.0 HUD Action Buttons
+setTimeout(() => {
+  const hlBtn = document.getElementById('btnHeadlights');
+  if (hlBtn) hlBtn.addEventListener('click', () => {
+    lightsOn = !lightsOn;
+    hlBtn.classList.toggle('active', lightsOn);
+    if (typeof toast === 'function') toast(lightsOn ? '💡 Headlights ON' : '💡 Headlights OFF', lightsOn ? '#ffd84a' : '#888');
+  });
+  const hornBtn = document.getElementById('btnHornMelody');
+  if (hornBtn) hornBtn.addEventListener('click', () => {
+    startAudio();
+    if (SND && SND.melody) {
+      SND.melody();
+      hornUntil = performance.now() + 3500;
+      if (typeof toast === 'function') toast('🎶 Musical Horn!', '#7dff9a');
+    }
+  });
+  const wxBtn = document.getElementById('btnWeather');
+  if (wxBtn) wxBtn.addEventListener('click', cycleWeather);
+  const camBtn = document.getElementById('btnCamera');
+  if (camBtn) camBtn.addEventListener('click', () => {
+    camMode = (camMode + 1) % 3;
+    viewEl.textContent = 'View: ' + ['Chase', 'Driver seat', 'Showcase'][camMode];
+    if (typeof toast === 'function') toast('Camera: ' + ['Chase', 'Driver seat', 'Showcase'][camMode], '#fff');
+  });
+  const skinBtn = document.getElementById('btnSkin');
+  if (skinBtn) skinBtn.addEventListener('click', () => {
+    currentSkinIdx = (currentSkinIdx + 1) % window.SKINS.length;
+    window.applySkin(window.SKINS[currentSkinIdx].id);
+  });
+  document.querySelectorAll('.swatch').forEach(btn => {
+    btn.addEventListener('click', () => {
+      window.applySkin(btn.getAttribute('data-skin'));
+    });
+  });
+  try {
+    const savedSkin = localStorage.getItem('slbus_skin') || 'viking';
+    window.applySkin(savedSkin);
+  } catch(e){}
+}, 200);
 const touch={L:false,R:false,G:false,B:false};
 [['tL','L'],['tR','R'],['tG','G'],['tB','B']].forEach(([id,k])=>{
   const el=document.getElementById(id);
