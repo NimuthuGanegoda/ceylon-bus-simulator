@@ -110,6 +110,54 @@
       ]
     },
 
+    r100: {
+      id: 'r100', num: '100', region: 'Sri Lanka', country: 'LK', biome: 'tropical',
+      trafficSide: 'LHT', currency: 'Rs', tzOffset: 5.5, accentColor: '#f59e0b',
+      name: 'Colombo Fort → Galle Rd 4-Lane → Panadura',
+      shortName: '100 Galle Rd 4-Lane',
+      highway: 'A2 Colombo–Panadura 4-Lane Arterial',
+      desc: 'Authentic modern Sri Lankan 4-lane urban dual carriageway: drive along Galle Face, Bambalapitiya, Dehiwala, Mt. Lavinia & Moratuwa with painted median curbs, slow-lane tuk-tuks & 1:1 traffic.',
+      realKm: 29.7, realDurationMin: 58, defaultScale: 1,
+      targetFareRev: 28000, fareBase: 40, farePerKm: 11.5,
+      compulsoryTea: false, roadStyle: 'fourlane', defaultBus: 'metro', lanes: 4,
+      tags: ['Sri Lanka', '4-Lane Arterial', '29.7 km', '1:1 Real-Time'],
+      waypoints: [
+        { lat: 6.9344, lng: 79.8428, elev: 4,  name: 'Colombo Fort Terminus', sin: 'කොළඹ කොටුව', zone: 'town', lim: 45, halt: true, term: 'start' },
+        { lat: 6.9218, lng: 79.8465, elev: 5,  name: 'Galle Face Green',      zone: 'coconut', lim: 50, halt: true },
+        { lat: 6.8938, lng: 79.8552, elev: 6,  name: 'Bambalapitiya Jn',      zone: 'town',    lim: 50, halt: true, timing: true },
+        { lat: 6.8745, lng: 79.8598, elev: 7,  name: 'Wellawatte Savoy',      zone: 'town',    lim: 50, halt: true },
+        { lat: 6.8515, lng: 79.8639, elev: 8,  name: 'Dehiwala Flyover',      zone: 'town',    lim: 50, halt: true, timing: true },
+        { lat: 6.8305, lng: 79.8669, elev: 9,  name: 'Mount Lavinia Jn',      zone: 'coconut', lim: 55, halt: true },
+        { lat: 6.8125, lng: 79.8732, elev: 11, name: 'Ratmalana Airport',     zone: 'town',    lim: 60, halt: true },
+        { lat: 6.7745, lng: 79.8825, elev: 9,  name: 'Moratuwa Town',         zone: 'town',    lim: 50, halt: true, timing: true },
+        { lat: 6.7420, lng: 79.8935, elev: 8,  name: 'Gorakana Bridge',       zone: 'lake',    lim: 60, halt: false, bridge: true },
+        { lat: 6.7132, lng: 79.9026, elev: 7,  name: 'Panadura Central Stand',sin: 'පානදුර', zone: 'town', lim: 40, halt: true, term: 'end' }
+      ]
+    },
+
+    e03: {
+      id: 'e03', num: 'E03', region: 'Sri Lanka', country: 'LK', biome: 'tropical',
+      trafficSide: 'LHT', currency: 'Rs', tzOffset: 5.5, accentColor: '#38bdf8',
+      name: 'Colombo Fort → New Kelani Bridge → Katunayake BIA',
+      shortName: 'E03 Airport Expy',
+      highway: 'E03 Colombo–Katunayake 4-Lane Expressway',
+      desc: 'Sri Lanka’s 4-lane Airport Expressway across the Kalyani Golden Gate Cable Bridge, Peliyagoda Hub & Muthurajawela lagoon into Bandaranaike International Airport.',
+      realKm: 33.6, realDurationMin: 34, defaultScale: 1,
+      targetFareRev: 34000, fareBase: 140, farePerKm: 13.0,
+      compulsoryTea: false, roadStyle: 'expressway', defaultBus: 'express', lanes: 4,
+      tags: ['Sri Lanka', '4-Lane Expy', '33.6 km', 'BIA Airport'],
+      waypoints: [
+        { lat: 6.9355, lng: 79.8538, elev: 4,  name: 'Colombo Bastian Mawatha', sin: 'කොටුව බැස්ටියන්', zone: 'town', lim: 50, halt: true, term: 'start' },
+        { lat: 6.9548, lng: 79.8780, elev: 14, name: 'New Kelani Cable Bridge', zone: 'town',    lim: 70,  halt: false, bridge: true },
+        { lat: 6.9685, lng: 79.8865, elev: 9,  name: 'Peliyagoda E03 Gate',     zone: 'paddy',   lim: 80,  halt: true, timing: true },
+        { lat: 7.0185, lng: 79.8835, elev: 6,  name: 'Kerawalapitiya Link',     zone: 'lake',    lim: 100, halt: false },
+        { lat: 7.0785, lng: 79.8920, elev: 7,  name: 'Ja-Ela Interchange',      zone: 'coconut', lim: 100, halt: true, timing: true },
+        { lat: 7.1365, lng: 79.8895, elev: 9,  name: 'Seeduwa Lagoon Viaduct',  zone: 'paddy',   lim: 100, halt: false, bridge: true },
+        { lat: 7.1635, lng: 79.8868, elev: 10, name: 'Katunayake Expy Exit',    zone: 'coconut', lim: 70,  halt: true },
+        { lat: 7.1715, lng: 79.8842, elev: 11, name: 'Bandaranaike Airport BIA',sin: 'කටුනායක ගුවන්තොටුපළ', zone: 'town', lim: 40, halt: true, term: 'end' }
+      ]
+    },
+
     r01: {
       id: 'r01', num: '01', region: 'Sri Lanka', country: 'LK', biome: 'tropical',
       trafficSide: 'LHT', currency: 'Rs', tzOffset: 5.5, accentColor: '#22c55e',
@@ -470,6 +518,33 @@
     };
   }
 
+  function simplifyGeoCoords(coords, tolDeg) {
+    if (!Array.isArray(coords) || coords.length <= 2) return coords || [];
+    const keep = new Uint8Array(coords.length);
+    keep[0] = 1; keep[coords.length - 1] = 1;
+    const stack = [[0, coords.length - 1]];
+    while (stack.length) {
+      const pair = stack.pop(), i0 = pair[0], i1 = pair[1];
+      if (i1 - i0 <= 1) continue;
+      const ax = coords[i0][0], ay = coords[i0][1], bx = coords[i1][0], by = coords[i1][1];
+      const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+      let maxD = -1, idx = -1;
+      for (let i = i0 + 1; i < i1; i++) {
+        const px = coords[i][0], py = coords[i][1];
+        const t = l2 <= 1e-18 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / l2));
+        const d = Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+        if (d > maxD) { maxD = d; idx = i; }
+      }
+      if (maxD > tolDeg && idx >= 0) {
+        keep[idx] = 1;
+        stack.push([i0, idx], [idx, i1]);
+      }
+    }
+    const out = [];
+    for (let i = 0; i < coords.length; i++) if (keep[i]) out.push(coords[i]);
+    return out;
+  }
+
   async function createGlobalCustomRoute(fromText, toText, opts) {
     const o = opts || {};
     const p1 = o.p1 || await geocodePlace(fromText);
@@ -480,10 +555,10 @@
     let durationMin = 0;
     let usedOsrm = false;
 
-    // Fetch true road routing geometry via public OSRM API
+    // Fetch full high-resolution road driving geometry via public OSRM API
     try {
-      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${p1.lng},${p1.lat};${p2.lng},${p2.lat}?overview=simplified&geometries=geojson`;
-      const r = await fetchWithTimeout(osrmUrl, null, 5000);
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${p1.lng},${p1.lat};${p2.lng},${p2.lat}?overview=full&geometries=geojson`;
+      const r = await fetchWithTimeout(osrmUrl, null, 6000);
       if (r.ok) {
         const j = await r.json();
         if (j.routes && j.routes[0] && j.routes[0].geometry && j.routes[0].geometry.coordinates.length >= 2) {
@@ -506,7 +581,12 @@
       }
     }
 
-    // Subsample evenly into 10..22 navigable waypoints
+    // Preserve real highway/street curvature in roadShape (up to ~220 vertices)
+    let tol = 0.00012;
+    let shapeRaw = simplifyGeoCoords(coords, tol);
+    while (shapeRaw.length > 220) { tol *= 1.35; shapeRaw = simplifyGeoCoords(coords, tol); }
+
+    // Subsample evenly into 8..22 navigable waypoints / bus stops
     const targetCount = Math.min(22, Math.max(8, Math.round(totalKm / 15) + 6));
     const sampled = [];
     for (let i = 0; i < targetCount; i++) {
@@ -527,6 +607,15 @@
         }
       }
     } catch (e) {}
+
+    const roadShape = usedOsrm && shapeRaw.length >= 12 ? shapeRaw.map(c => {
+      let bestE = elevs[0], bestD = 1e9;
+      for (let i = 0; i < sampled.length; i++) {
+        const d = (sampled[i].lat - c[1]) ** 2 + (sampled[i].lng - c[0]) ** 2;
+        if (d < bestD) { bestD = d; bestE = elevs[i]; }
+      }
+      return [Number(c[1].toFixed(5)), Number(c[0].toFixed(5)), bestE];
+    }) : undefined;
 
     const maxElev = Math.max(...elevs);
     const midLat = (p1.lat + p2.lat) / 2;
@@ -582,7 +671,8 @@
       defaultBus: express ? 'express' : 'metro',
       lanes: express ? 4 : 2,
       tags: ['Global Custom', `${totalKm.toFixed(1)} km`, `${maxElev} m Max ASL`, 'OSRM Live'],
-      waypoints
+      waypoints,
+      roadShape
     };
 
     saveCustomRoute(routeObj);
@@ -602,15 +692,21 @@
     const parsedScale = Number(customScale);
     const scaleFactor = (Number.isFinite(parsedScale) && parsedScale > 0) ? parsedScale : r.defaultScale;
     const wps = r.waypoints;
+    const extShape = (Array.isArray(r.roadShape) && r.roadShape.length >= 12)
+      ? r.roadShape
+      : (window.ROUTE_PATHS && Array.isArray(window.ROUTE_PATHS[r.id]) && window.ROUTE_PATHS[r.id].length >= 12 ? window.ROUTE_PATHS[r.id] : null);
+    const hasRealRoad = !!extShape;
 
     const wpKm = [0];
     for (let i = 1; i < wps.length; i++) {
       wpKm.push(wpKm[i - 1] + haversineKm(wps[i - 1].lat, wps[i - 1].lng, wps[i].lat, wps[i].lng));
     }
     const rawGeoKm = Math.max(0.2, wpKm[wpKm.length - 1] || r.realKm);
-    const roadMul = r.realKm / rawGeoKm;
+    const roadMul = hasRealRoad ? 1.0 : (r.realKm / rawGeoKm);
 
-    const lat0 = wps[0].lat, lng0 = wps[0].lng, cosLat = Math.max(0.15, Math.cos(lat0 * DEG));
+    const lat0 = hasRealRoad ? extShape[0][0] : wps[0].lat;
+    const lng0 = hasRealRoad ? extShape[0][1] : wps[0].lng;
+    const cosLat = Math.max(0.15, Math.cos(lat0 * DEG));
     const toXZ = (lat, lng) => [
       ((lng - lng0) * cosLat * 111320) / scaleFactor * roadMul,
       ((lat0 - lat) * 111320) / scaleFactor * roadMul
@@ -618,20 +714,58 @@
 
     const anchors = wps.map((w, idx) => {
       const xz = toXZ(w.lat, w.lng);
-      return { x: xz[0], z: xz[1], w, realKm: wpKm[idx] * roadMul };
+      return { x: xz[0], z: xz[1], w, realKm: (wpKm[idx] / rawGeoKm) * r.realKm };
     });
 
-    const a0 = anchors[0], a1 = anchors[1];
+    // Build geometry control nodes from real OSRM road polyline if present, else route waypoints
+    const rawNodes = hasRealRoad
+      ? extShape.map(pt => {
+          const xz = toXZ(pt[0], pt[1]);
+          let bestIdx = 0, bestD = 1e18;
+          for (let j = 0; j < wps.length; j++) {
+            const d = (wps[j].lat - pt[0]) ** 2 + (wps[j].lng - pt[1]) ** 2;
+            if (d < bestD) { bestD = d; bestIdx = j; }
+          }
+          const rw = wps[bestIdx] || wps[0];
+          return {
+            x: xz[0], z: xz[1],
+            w: { lat: pt[0], lng: pt[1], elev: pt[2] !== undefined ? pt[2] : (rw.elev || 10), zone: rw.zone || 'town', lim: rw.lim || 60, name: rw.name }
+          };
+        })
+      : anchors;
+
+    // Shortcut tight self-crossing OSRM cloverleaf / ramp spirals so multi-lane roads never overlap themselves
+    if (hasRealRoad && rawNodes.length > 8) {
+      let i = 0;
+      while (i < rawNodes.length - 4) {
+        let arc = 0, spliced = false;
+        const maxJ = Math.min(rawNodes.length - 1, i + 28);
+        for (let j = i + 1; j <= maxJ; j++) {
+          arc += Math.hypot(rawNodes[j].x - rawNodes[j - 1].x, rawNodes[j].z - rawNodes[j - 1].z);
+          if (j >= i + 2 && arc > 42) {
+            const chord = Math.hypot(rawNodes[j].x - rawNodes[i].x, rawNodes[j].z - rawNodes[i].z);
+            if (chord < 25) {
+              rawNodes.splice(i + 1, j - i - 1);
+              spliced = true;
+              break;
+            }
+          }
+        }
+        if (!spliced) i++;
+      }
+    }
+
+    const a0 = rawNodes[0], a1 = rawNodes[Math.min(1, rawNodes.length - 1)];
     const d0 = Math.hypot(a1.x - a0.x, a1.z - a0.z) || 1;
     const t0x = (a1.x - a0.x) / d0, t0z = (a1.z - a0.z) / d0;
 
-    const bN = anchors[anchors.length - 1], bP = anchors[anchors.length - 2];
+    const bN = rawNodes[rawNodes.length - 1], bP = rawNodes[Math.max(0, rawNodes.length - 2)];
     const d1 = Math.hypot(bN.x - bP.x, bN.z - bP.z) || 1;
     const t1x = (bN.x - bP.x) / d1, t1z = (bN.z - bP.z) / d1;
 
-    const leadIn = { x: a0.x - t0x * 360, z: a0.z - t0z * 360, realKm: -0.36 * scaleFactor, w: Object.assign({}, wps[0], { name: wps[0].name + ' Approach' }) };
-    const leadOut = { x: bN.x + t1x * 360, z: bN.z + t1z * 360, realKm: r.realKm + 0.36 * scaleFactor, w: Object.assign({}, wps[wps.length - 1], { name: wps[wps.length - 1].name + ' Exit' }) };
-    const ctrlPts = [leadIn, ...anchors, leadOut];
+    const leadIn = { x: a0.x - t0x * 360, z: a0.z - t0z * 360, w: Object.assign({}, rawNodes[0].w, { name: (wps[0].name || 'Start') + ' Approach' }) };
+    const leadOut = { x: bN.x + t1x * 360, z: bN.z + t1z * 360, w: Object.assign({}, bN.w, { name: (wps[wps.length - 1].name || 'End') + ' Exit' }) };
+    const ctrlPts = [leadIn, ...rawNodes, leadOut];
 
     const dense = [];
     for (let s = 0; s < ctrlPts.length - 1; s++) {
@@ -640,7 +774,7 @@
       const p2 = ctrlPts[s + 1];
       const p3 = ctrlPts[Math.min(ctrlPts.length - 1, s + 2)];
       const segLen = Math.hypot(p2.x - p1.x, p2.z - p1.z);
-      const steps = Math.max(16, Math.round(segLen / 5));
+      const steps = Math.max(hasRealRoad ? 4 : 16, Math.round(segLen / 5));
       for (let k = 0; k < steps; k++) {
         const t = k / steps;
         const pos = catmullRom([p0.x, p0.z], [p1.x, p1.z], [p2.x, p2.z], [p3.x, p3.z], t);
@@ -664,29 +798,31 @@
       lim: leadOut.w.lim, zoneName: leadOut.w.zone
     });
 
-    const rawL = [0];
-    for (let i = 1; i < dense.length; i++) rawL.push(rawL[i - 1] + Math.hypot(dense[i].x - dense[i - 1].x, dense[i].z - dense[i - 1].z));
-    const totalRaw = rawL[rawL.length - 1];
+    if (!hasRealRoad) {
+      const rawL = [0];
+      for (let i = 1; i < dense.length; i++) rawL.push(rawL[i - 1] + Math.hypot(dense[i].x - dense[i - 1].x, dense[i].z - dense[i - 1].z));
+      const totalRaw = rawL[rawL.length - 1];
 
-    for (let i = 4; i < dense.length - 4; i++) {
-      const d = dense[i], prev = dense[i - 3], next = dense[i + 3];
-      const dx = next.x - prev.x, dz = next.z - prev.z, len = Math.hypot(dx, dz) || 1;
-      const nx = dz / len, nz = -dx / len;
-      const arc = rawL[i];
-      const endFade = Math.min(1, Math.min(arc, totalRaw - arc) / 480);
-      const zoneAmp = d.zoneName === 'hills' ? 32 : d.zoneName === 'jungle' ? 22 : r.roadStyle === 'expressway' ? 12 : d.zoneName === 'town' ? 5 : 15;
-      const wl = d.zoneName === 'hills' ? 280 : 520;
-      const wave = endFade * zoneAmp * (Math.sin(arc / wl * Math.PI * 2) * 0.65 + Math.sin(arc / (wl * 0.49) * Math.PI * 2 + 1.1) * 0.35);
-      d.x += nx * wave;
-      d.z += nz * wave;
+      for (let i = 4; i < dense.length - 4; i++) {
+        const d = dense[i], prev = dense[i - 3], next = dense[i + 3];
+        const dx = next.x - prev.x, dz = next.z - prev.z, len = Math.hypot(dx, dz) || 1;
+        const nx = dz / len, nz = -dx / len;
+        const arc = rawL[i];
+        const endFade = Math.min(1, Math.min(arc, totalRaw - arc) / 480);
+        const zoneAmp = d.zoneName === 'hills' ? 32 : d.zoneName === 'jungle' ? 22 : r.roadStyle === 'expressway' ? 12 : d.zoneName === 'town' ? 5 : 15;
+        const wl = d.zoneName === 'hills' ? 280 : 520;
+        const wave = endFade * zoneAmp * (Math.sin(arc / wl * Math.PI * 2) * 0.65 + Math.sin(arc / (wl * 0.49) * Math.PI * 2 + 1.1) * 0.35);
+        d.x += nx * wave;
+        d.z += nz * wave;
+      }
     }
 
     const segL = [0];
     for (let i = 1; i < dense.length; i++) segL.push(segL[i - 1] + Math.hypot(dense[i].x - dense[i - 1].x, dense[i].z - dense[i - 1].z));
-    const worldTotal = segL[segL.length - 1];
+    let worldTotal = segL[segL.length - 1];
     const targetPDS = (scaleFactor <= 1.2 && r.realKm > 60) ? 4.0 : 2.5;
     const PLEN = Math.max(400, Math.min(16000, Math.round(worldTotal / targetPDS)));
-    const actualPDS = worldTotal / PLEN;
+    let actualPDS = worldTotal / PLEN;
 
     const PATH = [];
     let k = 1;
@@ -734,11 +870,83 @@
       if (Math.abs(dy) > maxDy) PATH[j].y = PATH[j - 1].y + Math.sign(dy) * maxDy;
     }
 
-    for (let pass = 0; pass < 2; pass++) {
+    // Smooth compressed sharp turns and unfold tight hairpin loops so divided lanes never self-fold
+    const xzPasses = hasRealRoad ? (scaleFactor > 3 ? 8 : scaleFactor > 1.3 ? 5 : 3) : 2;
+    for (let pass = 0; pass < xzPasses; pass++) {
       const xs = PATH.map(p => p.x), zs = PATH.map(p => p.z);
       for (let j = 2; j < PLEN - 2; j++) {
         PATH[j].x = (xs[j - 2] + xs[j - 1] * 2 + xs[j] * 4 + xs[j + 1] * 2 + xs[j + 2]) / 10;
         PATH[j].z = (zs[j - 2] + zs[j - 1] * 2 + zs[j] * 4 + zs[j + 1] * 2 + zs[j + 2]) / 10;
+      }
+    }
+
+    if (hasRealRoad && PLEN > 30) {
+      const minR = r.roadStyle === 'expressway' ? 40 : r.roadStyle === 'metro' ? 28 : 24;
+      const minArcIdx = Math.max(12, Math.ceil(32 / actualPDS));
+      const maxArcIdx = Math.min(PLEN - 1, Math.ceil(950 / actualPDS));
+      const minSep = r.roadStyle === 'expressway' ? 28 : 22;
+      for (let pass = 0; pass < 26; pass++) {
+        let adjusted = false;
+        for (const wSpan of [3, 6]) {
+          const xs = PATH.map(p => p.x), zs = PATH.map(p => p.z);
+          const maxAng = (2 * wSpan * actualPDS) / minR;
+          for (let j = wSpan + 2; j < PLEN - wSpan - 2; j++) {
+            const v1x = xs[j] - xs[j - wSpan], v1z = zs[j] - zs[j - wSpan];
+            const v2x = xs[j + wSpan] - xs[j], v2z = zs[j + wSpan] - zs[j];
+            const ang = Math.atan2(Math.abs(v1x * v2z - v1z * v2x), v1x * v2x + v1z * v2z);
+            if (ang > maxAng) {
+              const blend = Math.min(0.68, 0.25 + 0.43 * (ang - maxAng) / Math.max(0.15, ang));
+              const mx = (xs[j - wSpan] + xs[j + wSpan]) * 0.5;
+              const mz = (zs[j - wSpan] + zs[j + wSpan]) * 0.5;
+              PATH[j].x += (mx - xs[j]) * blend;
+              PATH[j].z += (mz - zs[j]) * blend;
+              adjusted = true;
+            }
+          }
+        }
+        if (pass < 14) {
+          for (let i = 10; i < PLEN - 10; i += 4) {
+            for (let j = i + minArcIdx; j < Math.min(PLEN - 10, i + maxArcIdx); j += 4) {
+              const dx = PATH[j].x - PATH[i].x, dz = PATH[j].z - PATH[i].z;
+              const dist = Math.hypot(dx, dz);
+              if (dist < minSep) {
+                const push = (minSep - dist) * 0.34;
+                const ux = dist > 0.01 ? dx / dist : 0;
+                const uz = dist > 0.01 ? dz / dist : 1;
+                for (let m = -3; m <= 3; m++) {
+                  const wt = 1 - Math.abs(m) * 0.22;
+                  PATH[i + m].x -= ux * push * wt; PATH[i + m].z -= uz * push * wt;
+                  PATH[j + m].x += ux * push * wt; PATH[j + m].z += uz * push * wt;
+                }
+                adjusted = true;
+              }
+            }
+          }
+        }
+        if (!adjusted) break;
+      }
+
+      // Re-resample XYZ uniformly along the smoothed centerline so PDS stays constant
+      const sArc = [0];
+      for (let j = 1; j < PLEN; j++) {
+        sArc.push(sArc[j - 1] + Math.hypot(PATH[j].x - PATH[j - 1].x, PATH[j].z - PATH[j - 1].z));
+      }
+      const newTotal = sArc[PLEN - 1];
+      if (newTotal > 100) {
+        const newPDS = newTotal / (PLEN - 1);
+        const orig = PATH.map(p => ({ x: p.x, z: p.z, y: p.y }));
+        let sk = 1;
+        for (let j = 0; j < PLEN; j++) {
+          const tgt = j * newPDS;
+          while (sk < PLEN - 1 && sArc[sk] < tgt) sk++;
+          const a = orig[sk - 1], b = orig[sk];
+          const f = (tgt - sArc[sk - 1]) / Math.max(1e-6, sArc[sk] - sArc[sk - 1]);
+          PATH[j].x = a.x + (b.x - a.x) * f;
+          PATH[j].z = a.z + (b.z - a.z) * f;
+          PATH[j].y = a.y + (b.y - a.y) * f;
+        }
+        worldTotal = newTotal;
+        actualPDS = newPDS;
       }
     }
 
@@ -756,12 +964,21 @@
       PATH[j].curv = Math.abs(dh) / (8 * actualPDS);
     }
 
-    const landmarks = anchors.map(anc => {
-      let bestI = 0, bestD = 1e18;
-      for (let j = 0; j < PLEN; j++) {
-        const d = (PATH[j].x - anc.x) ** 2 + (PATH[j].z - anc.z) ** 2;
-        if (d < bestD) { bestD = d; bestI = j; }
+    const leadSamples = Math.max(20, Math.min(Math.floor(PLEN * 0.16), Math.round(350 / actualPDS)));
+    let minSearch = leadSamples;
+    const endLimit = PLEN - 1 - leadSamples;
+    const landmarks = anchors.map((anc, ai) => {
+      const maxEnd = Math.max(minSearch, endLimit - Math.max(0, (anchors.length - 1 - ai) * 8));
+      let bestI = minSearch, bestD = 1e18;
+      if (ai === 0) bestI = leadSamples;
+      else if (ai === anchors.length - 1) bestI = endLimit;
+      else {
+        for (let j = minSearch; j <= maxEnd; j++) {
+          const d = (PATH[j].x - anc.x) ** 2 + (PATH[j].z - anc.z) ** 2;
+          if (d < bestD) { bestD = d; bestI = j; }
+        }
       }
+      minSearch = Math.min(endLimit, bestI + 8);
       return {
         i: bestI,
         u: bestI / PLEN,
@@ -782,7 +999,7 @@
       };
     });
 
-    const startI = landmarks[0].i;
+    const startI = Math.max(20, landmarks[0].i);
     const destI = Math.max(startI + 40, landmarks[landmarks.length - 1].i);
     const drivableSamples = Math.max(10, destI - startI);
     const drivableWorldM = drivableSamples * actualPDS;

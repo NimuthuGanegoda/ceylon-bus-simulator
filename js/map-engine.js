@@ -258,19 +258,24 @@
     const mapH = Math.round(H * 0.68);
     const elevH = H - mapH;
 
+    const extShape = (Array.isArray(r.roadShape) && r.roadShape.length >= 12)
+      ? r.roadShape
+      : (global.ROUTE_PATHS && Array.isArray(global.ROUTE_PATHS[routeId]) && global.ROUTE_PATHS[routeId].length >= 12 ? global.ROUTE_PATHS[routeId] : null);
+    const polyPts = extShape ? extShape.map(s => ({ lat: s[0], lng: s[1] })) : pts;
+
     // 1. Top Map Frame (Web Mercator + Google Maps Data)
     ctx.save();
     ctx.beginPath();
     ctx.rect(0, 0, W, mapH);
     ctx.clip();
-    const proj = createGeoProjector(pts, W, mapH, 0.16);
+    const proj = createGeoProjector(polyPts, W, mapH, 0.16);
     drawMercatorUnderlay(ctx, proj, activeLayer);
 
-    // Route Polyline (Dual outer glow + inner bright core)
+    // Route Polyline (Dual outer glow + inner bright core following true highway path)
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.beginPath();
-    pts.forEach((p, i) => {
+    polyPts.forEach((p, i) => {
       const [x, y] = proj.toPx(p.lat, p.lng);
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });

@@ -465,6 +465,250 @@
       ]
     },
     {
+      "id": "e03",
+      "num": "E03",
+      "region": "Sri Lanka",
+      "country": "LK",
+      "biome": "tropical",
+      "trafficSide": "LHT",
+      "currency": "Rs",
+      "tzOffset": 5.5,
+      "accentColor": "#38bdf8",
+      "name": "Colombo Fort → New Kelani Bridge → Katunayake BIA",
+      "shortName": "E03 Airport Expy",
+      "highway": "E03 Colombo–Katunayake 4-Lane Expressway",
+      "desc": "Sri Lanka’s 4-lane Airport Expressway across the Kalyani Golden Gate Cable Bridge, Peliyagoda Hub & Muthurajawela lagoon into Bandaranaike International Airport.",
+      "realKm": 33.6,
+      "realDurationMin": 34,
+      "defaultScale": 1,
+      "targetFareRev": 34000,
+      "fareBase": 140,
+      "farePerKm": 13.0,
+      "compulsoryTea": false,
+      "roadStyle": "expressway",
+      "defaultBus": "express",
+      "lanes": 4,
+      "tags": [
+        "Sri Lanka",
+        "4-Lane Expy",
+        "33.6 km",
+        "BIA Airport"
+      ],
+      "waypoints": [
+        {
+          "lat": 6.9355,
+          "lng": 79.8538,
+          "elev": 4,
+          "name": "Colombo Bastian Mawatha",
+          "sin": "කොටුව බැස්ටියන්",
+          "zone": "town",
+          "lim": 50,
+          "halt": true,
+          "term": "start"
+        },
+        {
+          "lat": 6.9548,
+          "lng": 79.878,
+          "elev": 14,
+          "name": "New Kelani Cable Bridge",
+          "zone": "town",
+          "lim": 70,
+          "halt": false,
+          "bridge": true
+        },
+        {
+          "lat": 6.9685,
+          "lng": 79.8865,
+          "elev": 9,
+          "name": "Peliyagoda E03 Gate",
+          "zone": "paddy",
+          "lim": 80,
+          "halt": true,
+          "timing": true
+        },
+        {
+          "lat": 7.0185,
+          "lng": 79.8835,
+          "elev": 6,
+          "name": "Kerawalapitiya Link",
+          "zone": "lake",
+          "lim": 100,
+          "halt": false
+        },
+        {
+          "lat": 7.0785,
+          "lng": 79.892,
+          "elev": 7,
+          "name": "Ja-Ela Interchange",
+          "zone": "coconut",
+          "lim": 100,
+          "halt": true,
+          "timing": true
+        },
+        {
+          "lat": 7.1365,
+          "lng": 79.8895,
+          "elev": 9,
+          "name": "Seeduwa Lagoon Viaduct",
+          "zone": "paddy",
+          "lim": 100,
+          "halt": false,
+          "bridge": true
+        },
+        {
+          "lat": 7.1635,
+          "lng": 79.8868,
+          "elev": 10,
+          "name": "Katunayake Expy Exit",
+          "zone": "coconut",
+          "lim": 70,
+          "halt": true
+        },
+        {
+          "lat": 7.1715,
+          "lng": 79.8842,
+          "elev": 11,
+          "name": "Bandaranaike Airport BIA",
+          "sin": "කටුනායක ගුවන්තොටුපළ",
+          "zone": "town",
+          "lim": 40,
+          "halt": true,
+          "term": "end"
+        }
+      ]
+    },
+    {
+      "id": "r100",
+      "num": "100",
+      "region": "Sri Lanka",
+      "country": "LK",
+      "biome": "tropical",
+      "trafficSide": "LHT",
+      "currency": "Rs",
+      "tzOffset": 5.5,
+      "accentColor": "#f59e0b",
+      "name": "Colombo Fort → Galle Rd 4-Lane → Panadura",
+      "shortName": "100 Galle Rd 4-Lane",
+      "highway": "A2 Colombo–Panadura 4-Lane Arterial",
+      "desc": "Authentic modern Sri Lankan 4-lane urban dual carriageway: drive along Galle Face, Bambalapitiya, Dehiwala, Mt. Lavinia & Moratuwa with painted median curbs, slow-lane tuk-tuks & 1:1 traffic.",
+      "realKm": 29.7,
+      "realDurationMin": 58,
+      "defaultScale": 1,
+      "targetFareRev": 28000,
+      "fareBase": 40,
+      "farePerKm": 11.5,
+      "compulsoryTea": false,
+      "roadStyle": "fourlane",
+      "defaultBus": "metro",
+      "lanes": 4,
+      "tags": [
+        "Sri Lanka",
+        "4-Lane Arterial",
+        "29.7 km",
+        "1:1 Real-Time"
+      ],
+      "waypoints": [
+        {
+          "lat": 6.9344,
+          "lng": 79.8428,
+          "elev": 4,
+          "name": "Colombo Fort Terminus",
+          "sin": "කොළඹ කොටුව",
+          "zone": "town",
+          "lim": 45,
+          "halt": true,
+          "term": "start"
+        },
+        {
+          "lat": 6.9218,
+          "lng": 79.8465,
+          "elev": 5,
+          "name": "Galle Face Green",
+          "zone": "coconut",
+          "lim": 50,
+          "halt": true
+        },
+        {
+          "lat": 6.8938,
+          "lng": 79.8552,
+          "elev": 6,
+          "name": "Bambalapitiya Jn",
+          "zone": "town",
+          "lim": 50,
+          "halt": true,
+          "timing": true
+        },
+        {
+          "lat": 6.8745,
+          "lng": 79.8598,
+          "elev": 7,
+          "name": "Wellawatte Savoy",
+          "zone": "town",
+          "lim": 50,
+          "halt": true
+        },
+        {
+          "lat": 6.8515,
+          "lng": 79.8639,
+          "elev": 8,
+          "name": "Dehiwala Flyover",
+          "zone": "town",
+          "lim": 50,
+          "halt": true,
+          "timing": true
+        },
+        {
+          "lat": 6.8305,
+          "lng": 79.8669,
+          "elev": 9,
+          "name": "Mount Lavinia Jn",
+          "zone": "coconut",
+          "lim": 55,
+          "halt": true
+        },
+        {
+          "lat": 6.8125,
+          "lng": 79.8732,
+          "elev": 11,
+          "name": "Ratmalana Airport",
+          "zone": "town",
+          "lim": 60,
+          "halt": true
+        },
+        {
+          "lat": 6.7745,
+          "lng": 79.8825,
+          "elev": 9,
+          "name": "Moratuwa Town",
+          "zone": "town",
+          "lim": 50,
+          "halt": true,
+          "timing": true
+        },
+        {
+          "lat": 6.742,
+          "lng": 79.8935,
+          "elev": 8,
+          "name": "Gorakana Bridge",
+          "zone": "lake",
+          "lim": 60,
+          "halt": false,
+          "bridge": true
+        },
+        {
+          "lat": 6.7132,
+          "lng": 79.9026,
+          "elev": 7,
+          "name": "Panadura Central Stand",
+          "sin": "පානදුර",
+          "zone": "town",
+          "lim": 40,
+          "halt": true,
+          "term": "end"
+        }
+      ]
+    },
+    {
       "id": "r01",
       "num": "01",
       "region": "Sri Lanka",
