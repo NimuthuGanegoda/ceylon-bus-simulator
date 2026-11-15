@@ -299,6 +299,23 @@ window.addEventListener('unhandledrejection', function(e) {
   .hud2-btn.active{background:#4dd0ff;color:#000;border-color:#4dd0ff}
   body.athome #hud2{display:none}
   @media (max-width:768px){#hud2{bottom:80px;padding:4px 8px}.hud2-btn span{display:none}.hud2-btn{padding:8px 10px;font-size:16px}}
+
+  /* Dashboard Signals & Indicators */
+  .dash-signals{display:flex;justify-content:space-between;align-items:center;padding:0 6px 4px}
+  .sig-ind{font-size:16px;color:#2c3a4e;transition:all .1s}
+  .sig-ind.active{color:#35ff6a;text-shadow:0 0 10px #35ff6a}
+  .cruise-badge{background:#10b981;color:#000;font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;letter-spacing:1px}
+
+  /* GPS Route Navigator HUD */
+  #gpsNav{position:fixed;top:12px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;min-width:260px;max-width:340px;padding:8px 14px;border-radius:12px;background:rgba(10,16,28,.88);backdrop-filter:blur(8px);border:1px solid rgba(77,208,255,.3);box-shadow:0 4px 18px rgba(0,0,0,.45);z-index:9}
+  .gps-header{display:flex;align-items:center;gap:10px}
+  .gps-icon{font-size:22px}
+  .gps-title{font-size:13.5px;font-weight:800;color:#8fe9ff;letter-spacing:.5px}
+  .gps-dist{font-size:12px;opacity:.9;margin-top:2px}
+  .gps-dist b{color:#7dff9a}
+  .gps-progress{height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-top:6px;overflow:hidden}
+  #gpsBar{height:100%;width:0;background:linear-gradient(90deg,#4dd0ff,#7dff9a);transition:width .2s}
+  body.athome #gpsNav{display:none}
 </style>
 </head>
 <body class="athome">
@@ -420,7 +437,30 @@ addEventListener('error',function(){var x=document.getElementById('ldtxt');if(x&
 <div id="result"><div class="card"><h2 id="rtitle">Trip complete</h2><div id="rbody"></div><h3>Top drivers</h3><div id="lb2" class="lb"></div><div class="rbtn"><button id="again" type="button">Drive again</button><button id="rhome" type="button">&#127968; Home</button></div></div></div>
 <div id="over"><div id="ocap"></div><button id="oskip" type="button">Skip</button>
   <div id="ocard" hidden><div class="card"><h2 id="ohead">GAME OVER</h2><div id="obody"></div><button id="oagain" type="button">Try again</button></div></div></div>
-<div id="speedo" class="panel"><div id="kmh">0</div><span>km/h &nbsp;&middot;&nbsp; gear <b id="gear">N</b></span><div id="rpmbar"><div id="rpm"></div></div><div id="phys"></div></div>
+
+<div id="gpsNav" class="panel">
+  <div class="gps-header">
+    <span class="gps-icon">📍</span>
+    <div>
+      <div class="gps-title" id="gpsNextHalt">NEXT: Nugegoda</div>
+      <div class="gps-dist"><b id="gpsDist">420</b> m &middot; <span id="gpsZone">Limit 50 km/h</span></div>
+    </div>
+  </div>
+  <div class="gps-progress"><div id="gpsBar"></div></div>
+</div>
+
+<div id="speedo" class="panel">
+  <div class="dash-signals">
+    <span id="sigL" class="sig-ind">◀</span>
+    <span id="cruiseInd" class="cruise-badge" hidden>CRUISE</span>
+    <span id="sigR" class="sig-ind">▶</span>
+  </div>
+  <div id="kmh">0</div>
+  <span>km/h &nbsp;&middot;&nbsp; gear <b id="gear">N</b></span>
+  <div id="rpmbar"><div id="rpm"></div></div>
+  <div id="phys"></div>
+</div>
+
 <div id="touch">
   <div class="tb" id="tL" style="left:14px">&#9664;</div>
   <div class="tb" id="tR" style="left:104px">&#9654;</div>
@@ -429,10 +469,13 @@ addEventListener('error',function(){var x=document.getElementById('ldtxt');if(x&
 </div>
 
 <div id="hud2">
+  <button id="btnSigL" class="hud2-btn" type="button" title="Left Indicator (Q)">◀ <span>Left</span></button>
   <button id="btnHeadlights" class="hud2-btn" type="button" title="Headlights (L)">💡 <span>Lights</span></button>
   <button id="btnHornMelody" class="hud2-btn" type="button" title="Musical Horn (J)">🎶 <span>Melody</span></button>
   <button id="btnWeather" class="hud2-btn" type="button" title="Weather Cycle (V)">🌦️ <span>Weather</span></button>
   <button id="btnCamera" class="hud2-btn" type="button" title="Toggle Camera (C)">🎥 <span>Camera</span></button>
+  <button id="btnCruise" class="hud2-btn" type="button" title="Cruise Control (Shift)">⚡ <span>Cruise</span></button>
+  <button id="btnSigR" class="hud2-btn" type="button" title="Right Indicator (E)"><span>Right</span> ▶</button>
   <button id="btnSkin" class="hud2-btn" type="button" title="Change Livery">🎨 <span>Livery</span></button>
 </div>
 
@@ -2709,12 +2752,53 @@ let R={x:S0.x-Math.sin(S0.h)*-WHEEL_R,z:S0.z-Math.cos(S0.h)*-WHEEL_R};          
 let heading=S0.h,speed=0,steer=0,accel=0,yawRate=0,lightsOn=false,hornOn=false;
 let by=0,byS=null,pitchNow=0,pitchS=0;
 const keys={};
+let blinkL = false, blinkR = false, blinkHazard = false, blinkTimer = 0, blinkState = false;
+let cruiseSpeed = 0, cruiseOn = false;
+const CAM_NAMES = ['Chase 3D', 'Driver Cockpit', 'Bumper Cam', 'Showcase Orbit'];
+
+function toggleBlinker(dir){
+  startAudio();
+  if(dir === 'L'){ blinkL = !blinkL; if(blinkL){ blinkR = false; blinkHazard = false; } }
+  else if(dir === 'R'){ blinkR = !blinkR; if(blinkR){ blinkL = false; blinkHazard = false; } }
+  else if(dir === 'X'){ blinkHazard = !blinkHazard; if(blinkHazard){ blinkL = false; blinkR = false; } }
+  if(SND && SND.click) SND.click(true);
+  const sl = document.getElementById('btnSigL'), sr = document.getElementById('btnSigR');
+  if(sl) sl.classList.toggle('active', blinkL || blinkHazard);
+  if(sr) sr.classList.toggle('active', blinkR || blinkHazard);
+  if(typeof toast === 'function'){
+    if(blinkHazard) toast('⚠️ Hazard Blinkers ON', '#ffa500');
+    else if(blinkL) toast('◀ Left Indicator', '#35ff6a');
+    else if(blinkR) toast('Right Indicator ▶', '#35ff6a');
+    else toast('Indicators OFF', '#888');
+  }
+}
+
+function toggleCruise(){
+  cruiseOn = !cruiseOn;
+  cruiseSpeed = Math.abs(speed) > 3 ? Math.abs(speed) : 14;
+  const cInd = document.getElementById('cruiseInd');
+  if(cInd) cInd.hidden = !cruiseOn;
+  const cBtn = document.getElementById('btnCruise');
+  if(cBtn) cBtn.classList.toggle('active', cruiseOn);
+  if(typeof toast === 'function'){
+    toast(cruiseOn ? '⚡ Cruise Control: ' + Math.round(cruiseSpeed * 3.6) + ' km/h' : 'Cruise Control: OFF', cruiseOn ? '#7dff9a' : '#888');
+  }
+}
+
 addEventListener('keydown',e=>{keys[e.code]=true;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
-  if(e.code==='KeyL'){lightsOn=!lightsOn;if(document.getElementById('btnHeadlights'))document.getElementById('btnHeadlights').classList.toggle('active',lightsOn);}
+  if(e.code==='KeyL'){lightsOn=!lightsOn;if(document.getElementById('btnHeadlights'))document.getElementById('btnHeadlights').classList.toggle('active',lightsOn);if(typeof toast==='function')toast(lightsOn?'💡 Headlights ON':'💡 Headlights OFF',lightsOn?'#ffd84a':'#888');}
   if(e.code==='KeyJ'){startAudio();SND.melody();hornUntil=performance.now()+3500;}
-  if(e.code==='KeyC'){camMode=(camMode+1)%3;viewEl.textContent='View: '+['Chase','Driver seat','Showcase'][camMode];}
+  if(e.code==='KeyC'){camMode=(camMode+1)%4;viewEl.textContent='View: '+CAM_NAMES[camMode];if(typeof toast==='function')toast('View: '+CAM_NAMES[camMode],'#fff');}
   if(e.code==='KeyV'){cycleWeather();}
-  if(e.code==='KeyR'&&!OVER.on){R.x=S0.x-Math.sin(S0.h)*-WHEEL_R;R.z=S0.z-Math.cos(S0.h)*-WHEEL_R;heading=S0.h;speed=0;steer=0;}
+  if(e.code==='KeyQ'){toggleBlinker('L');}
+  if(e.code==='KeyE'){toggleBlinker('R');}
+  if(e.code==='KeyX'){toggleBlinker('X');}
+  if(e.code==='ShiftLeft'||e.code==='ShiftRight'){toggleCruise();}
+  if(e.code==='KeyR'&&!OVER.on){
+    const curP=nearestPath(R.x,R.z);const p=PATH[curP?curP.i:S0.i];
+    heading=Math.atan2(p.tx,p.tz);R.x=p.x-Math.sin(heading)*-WHEEL_R;R.z=p.z-Math.cos(heading)*-WHEEL_R;speed=0;steer=0;yawRate=0;
+    toast('Bus Realigned to Lane! 🛣️','#7dff9a');
+  }
   startAudio();});
 addEventListener('keyup',e=>{keys[e.code]=false;});
 
@@ -2775,11 +2859,17 @@ setTimeout(() => {
   });
   const wxBtn = document.getElementById('btnWeather');
   if (wxBtn) wxBtn.addEventListener('click', cycleWeather);
+  const sigLBtn = document.getElementById('btnSigL');
+  if(sigLBtn) sigLBtn.addEventListener('click', () => toggleBlinker('L'));
+  const sigRBtn = document.getElementById('btnSigR');
+  if(sigRBtn) sigRBtn.addEventListener('click', () => toggleBlinker('R'));
+  const cruiseBtn = document.getElementById('btnCruise');
+  if(cruiseBtn) cruiseBtn.addEventListener('click', toggleCruise);
   const camBtn = document.getElementById('btnCamera');
   if (camBtn) camBtn.addEventListener('click', () => {
-    camMode = (camMode + 1) % 3;
-    viewEl.textContent = 'View: ' + ['Chase', 'Driver seat', 'Showcase'][camMode];
-    if (typeof toast === 'function') toast('Camera: ' + ['Chase', 'Driver seat', 'Showcase'][camMode], '#fff');
+    camMode = (camMode + 1) % 4;
+    viewEl.textContent = 'View: ' + CAM_NAMES[camMode];
+    if (typeof toast === 'function') toast('Camera: ' + CAM_NAMES[camMode], '#fff');
   });
   const skinBtn = document.getElementById('btnSkin');
   if (skinBtn) skinBtn.addEventListener('click', () => {
@@ -3230,7 +3320,17 @@ const SND=(()=>{
       g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(vol,t+d+.03);g.gain.setValueAtTime(vol,t+d+L);g.gain.linearRampToValueAtTime(0,t+d+L+.08);
       [311,370,466].forEach(fr=>{const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=fr;o.connect(f);o.start(t+d);o.stop(t+d+L+.1);});f.connect(g);g.connect(M.out);});
   }
-  return {init,update,thump,melody,hiss,beep,cash,door,traffic:trafficSnd,crash,shout,siren,sirenOff,call,whistle,rain,busHorn};
+  function click(isTick){
+    if(!ac)return;
+    const osc=ac.createOscillator(),g=ac.createGain();
+    osc.type='triangle';
+    osc.frequency.setValueAtTime(isTick?1200:960,ac.currentTime);
+    g.gain.setValueAtTime(0.08,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.035);
+    osc.connect(g);g.connect(M.out);
+    osc.start();osc.stop(ac.currentTime+0.04);
+  }
+  return {init,update,thump,melody,hiss,beep,cash,door,traffic:trafficSnd,crash,shout,siren,sirenOff,call,whistle,rain,busHorn,click};
 })();
 function startAudio(){SND.init();}
 function thump(v){SND.thump(v);}
@@ -3288,8 +3388,10 @@ function collide(dt){
 const MAXV=28,MAXR=7,PHYS={mass:1,grade:0,slide:0,sqT:0};
 function update(dt){
   if(OVER.on||RECOV.pending||POL.state===2||TEA.active){speed=0;accel*=.9;steer*=.9;yawRate=0;return;}   // the bus stays where it stopped while the arrest plays out
-  const up=keys.KeyW||keys.ArrowUp||touch.G,dn=keys.KeyS||keys.ArrowDown||touch.B;
+  let up=keys.KeyW||keys.ArrowUp||touch.G,dn=keys.KeyS||keys.ArrowDown||touch.B;
   const lf=keys.KeyA||keys.ArrowLeft||touch.L,rt=keys.KeyD||keys.ArrowRight||touch.R,hb=keys.Space;
+  if(cruiseOn&&!dn&&!hb){if(speed<cruiseSpeed)up=true;}
+  if((dn||hb)&&cruiseOn){cruiseOn=false;const cInd=document.getElementById('cruiseInd');if(cInd)cInd.hidden=true;}
   const road=onRoad(R.x,R.z);
   { // slope under the front and rear axles
     const fx=Math.sin(heading),fz=Math.cos(heading),yR=groundY(R.x,R.z),yF=groundY(R.x+fx*WB,R.z+fz*WB);
@@ -6080,26 +6182,90 @@ function frame(){
     if(bus.tvMat)bus.tvMat.color.setHSL((t*.07)%1,.7,.45+.1*Math.sin(t*5));
   }
   const atHome=startEl.style.display!=='none'&&!TRIP.started&&!window.__adminMode,cm=atHome?2:camMode;
+  // Real-time GPS Highway Route Navigator
+  if(HALTS.length && !atHome){
+    let nextHalt = null, minDist = 1e9;
+    const curP = nearestPath(R.x, R.z);
+    for(const h of HALTS){
+      const d = distFwd(curP.i, h.i);
+      if(d > 0 && d < minDist){ minDist = d; nextHalt = h; }
+    }
+    const gpsTitle = document.getElementById('gpsNextHalt');
+    const gpsDist = document.getElementById('gpsDist');
+    const gpsBar = document.getElementById('gpsBar');
+    const gpsZone = document.getElementById('gpsZone');
+    if(nextHalt && gpsTitle && gpsDist){
+      gpsTitle.textContent = 'NEXT: ' + nextHalt.name;
+      gpsDist.textContent = Math.round(minDist);
+      const frac = clamp(1 - minDist / 1200, 0, 1);
+      if(gpsBar) gpsBar.style.width = (frac * 100) + '%';
+      if(gpsZone && typeof zoneIdx === 'function'){
+        const z = ZONES[PATH[curP.i].zone];
+        if(z) gpsZone.textContent = 'Limit ' + z.lim + ' km/h';
+      }
+    }
+  }
+
+  // Turn signal rhythm & audio click
+  if(blinkL || blinkR || blinkHazard){
+    blinkTimer += dt;
+    if(blinkTimer >= 0.36){
+      blinkTimer = 0;
+      blinkState = !blinkState;
+      if(SND && SND.click) SND.click(blinkState);
+      const sl = document.getElementById('sigL'), sr = document.getElementById('sigR');
+      if(sl) sl.classList.toggle('active', (blinkL || blinkHazard) && blinkState);
+      if(sr) sr.classList.toggle('active', (blinkR || blinkHazard) && blinkState);
+      if(bus && bus.markA){
+        bus.markA.emissiveIntensity = blinkState ? 3.2 : 0.2;
+      }
+    }
+  } else {
+    blinkState = false;
+    const sl = document.getElementById('sigL'), sr = document.getElementById('sigR');
+    if(sl) sl.classList.remove('active');
+    if(sr) sr.classList.remove('active');
+  }
+
   if(atHome&&HOMECAM(dt)){}
   else if(cm===0){
-    // chase view: close behind and a little above the roof, so the bus fills the lower part of the screen and the road ahead is clear
-    if(!drag){orbitYaw*=Math.exp(-dt*1.2);orbitPitch*=Math.exp(-dt*1.2);}
-    const zm=Math.max(zoom,-3),back=10.6+zm+v*.07,ang=heading+PI+orbitYaw;
-    camTarget.set(cx+Math.sin(ang)*back,byS+4.5+orbitPitch+zm*.2,cz+Math.cos(ang)*back);
-    camera.position.lerp(camTarget,1-Math.exp(-dt*(drag?30:5.5)));
-    look.set(cx+sh*7,byS+2.1,cz+ch*7);camera.lookAt(look);
-    camera.fov+=((60+Math.min(v,28)*.45)-camera.fov)*dt*3;
+    // Dynamic Chase Cam: corner look-ahead, speed rush FOV, squat/dive
+    if(!drag){orbitYaw*=Math.exp(-dt*2.2);orbitPitch*=Math.exp(-dt*2.2);}
+    const zm=Math.max(zoom,-3),back=10.4+zm+v*0.09,ang=heading+PI+orbitYaw;
+    const rollLead=clamp(speed*yawRate*3.5,-2.2,2.2);
+    const targetY=byS+4.3+orbitPitch+zm*0.2-(keys.KeyW?0.25:0)+(keys.KeyS?0.35:0);
+    camTarget.set(cx+Math.sin(ang)*back,targetY,cz+Math.cos(ang)*back);
+    camera.position.lerp(camTarget,1-Math.exp(-dt*(drag?30:6.5)));
+    const lookX=cx+(sh+Math.cos(heading)*rollLead*0.14)*8.5;
+    const lookZ=cz+(ch-Math.sin(heading)*rollLead*0.14)*8.5;
+    look.set(lookX,byS+1.9,lookZ);
+    camera.lookAt(look);
+    camera.fov+=((62+Math.min(v,28)*0.55)-camera.fov)*dt*4;
   }else if(cm===1){
-    // driver's seat: eye level above the wheel, looking down the road through the windscreen
-    bus.root.updateMatrixWorld(true);   // use where the bus is on this frame, not the last one: otherwise the cab trembles against the road
-    v3.set(-.45,2.22,4.72);tilt.localToWorld(v3);camera.position.copy(v3);COND.bub.visible=false;   // the driver's own eyes: wheel and instruments below, mirrors either side   // standing in the front of the bus, just behind the driver's shoulder
-    v3.set(-.32+orbitYaw*-14,1.45+orbitPitch*.1,14);tilt.localToWorld(v3);camera.lookAt(v3);
-    camera.fov+=(82-camera.fov)*dt*3;
-    if(!drag){orbitYaw*=Math.exp(-dt*3);orbitPitch*=Math.exp(-dt*3);}
+    // Driver Cockpit View: natural head physics, dynamic glance into corner
+    bus.root.updateMatrixWorld(true);
+    const headSway=clamp(-yawRate*0.16,-0.06,0.06);
+    const headPitch=clamp(-accel*0.012,-0.04,0.04);
+    v3.set(-.45+headSway,2.22+headPitch,4.72);
+    tilt.localToWorld(v3);camera.position.copy(v3);COND.bub.visible=false;
+    const glance=clamp(steer*2.0,-0.55,0.55);
+    v3.set(-.32+glance+orbitYaw*-14,1.45+orbitPitch*.1,14);
+    tilt.localToWorld(v3);camera.lookAt(v3);
+    camera.fov+=((80+Math.min(v,28)*0.35)-camera.fov)*dt*4;
+    if(!drag){orbitYaw*=Math.exp(-dt*3.5);orbitPitch*=Math.exp(-dt*3.5);}
+  }else if(cm===2){
+    // Bumper / Hood Cam: Low-level thrilling speed
+    bus.root.updateMatrixWorld(true);
+    v3.set(0,1.15,5.55);
+    tilt.localToWorld(v3);camera.position.copy(v3);
+    v3.set(0,1.1,20);
+    tilt.localToWorld(v3);camera.lookAt(v3);
+    camera.fov+=((70+Math.min(v,28)*0.5)-camera.fov)*dt*4;
   }else{
+    // Showcase Orbit Drone
     showT+=dt*.35;
     camTarget.set(cx+Math.sin(showT+orbitYaw)*(15+zoom),byS+3.4+orbitPitch*.5,cz+Math.cos(showT+orbitYaw)*(15+zoom));
-    camera.position.lerp(camTarget,1-Math.exp(-dt*3));look.set(cx,byS+1.7,cz);camera.lookAt(look);camera.fov+=(50-camera.fov)*dt*3;
+    camera.position.lerp(camTarget,1-Math.exp(-dt*3));look.set(cx,byS+1.7,cz);camera.fov+=(50-camera.fov)*dt*3;
   }
   if(OVER.on){   // film the scene beside the bus: a slow arc around the crowd
     const D=OVER.D,gy=groundY(D.x,D.z),a=heading-1.05-OVER.t*.05,rad=9.4-Math.min(OVER.t,5)*.42;
